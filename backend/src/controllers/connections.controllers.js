@@ -235,7 +235,7 @@ const maxdiff = {
 
  }
 
- export const getmatchscore = asynchandler(async(req,res)=>{
+ export const matchingalgorithm = asynchandler(async(req,res)=>{
     const currentuserid = req.user._id;
 
     // pagination added

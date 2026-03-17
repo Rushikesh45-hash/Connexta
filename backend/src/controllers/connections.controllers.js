@@ -156,3 +156,152 @@ export const unblockuser = asynchandler(async (req, res) => {
     await Block.deleteOne({ _id: block._id });
     return res.status(200).json(new Apiresponse(200, null, "User unblocked successfully"));
 });
+
+
+const unwantedwords = ["the", "is", "in", "and", "or", "of", "to", "a", "with", "for", "on", "by", "as", "at", "from"];
+const maxdiff = {
+    age: 5,
+    salary: 40000
+}
+ const weight={
+    age : 10,
+    salary : 20,
+    location :10,
+    Hobbies : 25,
+    bio : 20,
+    interactionbonus : 5
+ }
+
+ function getmeaningkeywords(bio){
+    return bio
+    ?.toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .split(" ")
+    .filter(word => !unwantedwords.includes(word)) || [];
+ }
+
+
+ function calculatematchscore(currentuser, otheruser){
+    let score = 0;
+    const reasons = [];
+
+    const agediff = Math.abs(currentuser.age - otheruser.age);
+    const agescore = Math.max(0, maxdiff.age - agediff) / maxdiff.age * weight.age;
+    if (agescore > 0) {
+        score += agescore;
+        reasons.push(`Age difference is just ${agediff} years so you can connect to each other`);
+    }
+
+    const salarydiff = Math.abs(currentuser.salary - otheruser.salary);
+    const salaryscore = Math.max(0, maxdiff.salary - salarydiff) / maxdiff.salary * weight.salary;
+    if (salaryscore > 0) {
+        score += salaryscore;
+        reasons.push(`Salary difference is ${salarydiff}, but actually salary is just a number and it doesn't define you as a person so you can connect to each other, this is my personal opinion`);
+    }
+
+    const cityscore = currentuser.location === otheruser.location ? weight.location : 0;
+    if (cityscore > 0) {
+        score += cityscore;
+        reasons.push(`You both live in the same city ${currentuser.location} so you can connect to each other`);
+
+    }
+
+    const commonhobbies = currentuser.Hobbies.filter(hobby => otheruser.Hobbies.includes(hobby));
+    const hobbiescore = (commonhobbies.length / (currentuser.Hobbies.length)) * weight.Hobbies;
+    if (hobbiescore > 0) {
+        score += hobbiescore;
+        reasons.push(`You both have ${commonhobbies.length} common hobbies so it will easy to connect to each other and have fun together`);
+    }
+
+    const currentuserkeywords = getmeaningkeywords(currentuser.bio);
+    const otheruserkeywords = getmeaningkeywords(otheruser.bio);
+    const commonkeywords = currentuserkeywords.filter(keyword => otheruserkeywords.includes(keyword));
+    const bioscore = (commonkeywords.length / (currentuserkeywords.length || 1)) * weight.bio;  
+    if (bioscore > 0) {
+        score += bioscore;
+        reasons.push(`You both have ${commonkeywords.length} common keywords in your bio so you can connect to each other`);
+    }
+
+    if (cityscore > 0 && hobbiescore >= (weight.Hobbies / 2)){
+        score+=weight.interactionbonus;
+    }
+    if(agescore >= (weight.age / 2) && salaryscore >= (weight.salary / 2)){
+        score+=weight.interactionbonus;
+    }
+
+    score = Math.min(100, score);
+
+    return {score, reasons};
+
+ }
+
+ export const getmatchscore = asynchandler(async(req,res)=>{
+    const currentuserid = req.user._id;
+
+    // pagination added
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const blockedusers = await Block.find({
+        $or: [
+            { blockerId: currentuserid },
+            { blockedId: currentuserid }
+        ]
+    }).select("blockedId blockerId -_id");
+
+    const allblockuserids = blockedusers.map(m =>{
+        return m.blockerId.toString() === currentuserid.toString() ? m.blockedId.toString() : m.blockerId.toString();
+    })
+
+    const connections = await Connection.find({
+    $or: [
+      { requester: currentuserid._id },
+      { recipient: currentuserid._id }
+    ]
+    }).select("requester recipient status");
+
+    const connectedOrpendingids = connections.map(c =>
+        c.requester.toString() === currentuserid._id.toString() ? c.recipient.toString() : c.requester.toString()
+    );
+
+    const candidates = await user.find({
+        _id: { $nin: [...allblockuserids, ...connectedOrpendingids, currentuserid._id] }
+    });
+
+    const threshold = 78;
+    const matches = candidates.map(candidate => {
+        const { score, reasons } = calculatematchscore(req.user, candidate);
+        return { user: candidate, score, reasons };
+    }).filter(match => match.score >= threshold)
+    .sort((a, b) => b.score - a.score);
+
+    // pagination applied
+    const paginatedMatches = matches.slice(skip, skip + limit);
+
+    const response = paginatedMatches.map(m => ({
+        _id: m.user._id,
+        user_name: m.user.user_name,
+        full_name: m.user.full_name,
+        age: m.user.age,
+        location: m.user.location,
+        Hobbies: m.user.Hobbies,
+        bio: m.user.bio,
+        avatar: m.user.avatar,
+        matchScore: m.score,
+        matchReasons: m.reasons
+    }));
+
+    if(matches.length === 0){
+        return res.status(200).json(new Apiresponse(200, [], "No matches found based on the criteria"));
+    }
+
+    return res.status(200).json(new Apiresponse(200, {
+        matches: response,
+        totalMatches: matches.length,
+        currentPage: page,
+        totalPages: Math.ceil(matches.length / limit)
+    }, "Match scores calculated successfully"));
+
+
+ })

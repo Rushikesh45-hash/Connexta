@@ -1,6 +1,6 @@
 import {Router} from "express";
 import { loginuser, registeruser,logoutuser,generatenewaccesstoken, profileuser, updateprofile } from "../controllers/user.controllers.js";
-import { sendConnectionRequest, givependingrequest, reviewConnectionRequest, discoverusers } from "../controllers/connections.controllers.js";  
+import { sendConnectionRequest, givependingrequest, reviewConnectionRequest, discoverusers, blockuser, unblockuser} from "../controllers/connections.controllers.js";  
 import {upload} from "../middlewares/multer.js"
 import { verifyJWT } from "../middlewares/auth.js";
 
@@ -24,5 +24,9 @@ router.route("/pending").get(verifyJWT,givependingrequest);
 router.route("/profile").put(verifyJWT,upload.single("avatar"),profileuser);
 
 router.route("/discover").get(verifyJWT, discoverusers);
+
+router.route("/block/:blockedUserId").post(verifyJWT, blockuser);
+
+router.route("/unblock/:blockedUserId").post(verifyJWT, unblockuser);
 
 export default router;

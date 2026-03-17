@@ -1,6 +1,7 @@
 import {Router} from "express";
 import { loginuser, registeruser,logoutuser,generatenewaccesstoken, profileuser, updateprofile } from "../controllers/user.controllers.js";
 import { sendConnectionRequest, givependingrequest, reviewConnectionRequest, discoverusers, blockuser, unblockuser, matchingalgorithm} from "../controllers/connections.controllers.js";  
+import { sendmessage, getmessages, toseenmessage } from "../controllers/chat.controller.js";
 import {upload} from "../middlewares/multer.js"
 import { verifyJWT } from "../middlewares/auth.js";
 
@@ -30,5 +31,11 @@ router.route("/block/:blockedUserId").post(verifyJWT, blockuser);
 router.route("/unblock/:blockedUserId").post(verifyJWT, unblockuser);
 
 router.route("/matching").get(verifyJWT, matchingalgorithm);
+
+router.route("/sendmessage/:receiver_id").post(verifyJWT,sendmessage);
+
+router.route("/getmessages/:receiver_id").get(verifyJWT,getmessages);
+
+router.route("/toseen/:chatroom_id").post(verifyJWT,toseenmessage);
 
 export default router;

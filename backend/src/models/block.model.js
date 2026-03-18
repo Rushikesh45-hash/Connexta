@@ -7,4 +7,4 @@ const blockSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model("Block", blockSchema);
+export const Block = mongoose.model("Block", blockSchema);

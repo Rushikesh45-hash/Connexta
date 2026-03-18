@@ -1,5 +1,5 @@
-import asynchandler from "express-async-handler";
-import { Apiresponse } from "../utils/apiresponse.js";
+import {asynchandler} from "../utils/asynchandler.js";
+import { Apiresponse } from "../utils/response.js";
 import Chatroom from "../models/chatroom.model.js";
 import { Message } from "../models/message.model.js";
 

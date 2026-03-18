@@ -29,4 +29,4 @@ const message_schema = new mongoose.Schema({
   }
 });
 message_schema.index({ chatroom_id: 1, created_at: 1 });
-export default mongoose.model("message", message_schema);
+export const Message = mongoose.model("Message", message_schema);

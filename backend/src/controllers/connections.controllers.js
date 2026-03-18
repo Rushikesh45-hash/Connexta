@@ -2,7 +2,7 @@ import { asynchandler } from "../utils/asynchandler.js";
 import { Apierror } from "../utils/apierror.js";
 import { Apiresponse } from "../utils/response.js";
 import { Connection } from "../models/modelconnetion.js";
-import { Block } from "../models/bloke.model.js";
+import { Block } from "../models/block.model.js";
 import { user } from "../models/user.js";
 
 export const sendConnectionRequest = asynchandler(async (req, res) => {

@@ -1,5 +1,7 @@
 // socket/socket.js
 import { Server } from "socket.io";
+import { cacheMessage } from "../utils/chatcache.js"; // ✅ ADDED
+import Message from "../models/message.model.js"; // ✅ ADDED
 
 let io;
 //io is just variable which will hold the socket server instance and we will initialize that in the initSocket function and we will export that io variable so that we can use that in our controller to send or recieve data instantly without refreshing the page.
@@ -36,6 +38,29 @@ export const initSocket = (server) => {
     socket.on("leave_room", (chatroomId) => {
       socket.leave(chatroomId);
       console.log(`User left room: ${chatroomId}`);
+    });
+
+    // ✅ ADDED: real-time send message with Redis caching
+    socket.on("send_message", async (data) => {
+      try {
+        const { chatroom_id, sender_id, receiver_id, message } = data;
+
+        const newMessage = await Message.create({
+          chatroom_id,
+          sender_id,
+          receiver_id,
+          message
+        });
+
+        // 🔥 cache in redis
+        await cacheMessage(chatroom_id, newMessage);
+
+        // send to room
+        io.to(chatroom_id).emit("receive_message", newMessage);
+
+      } catch (error) {
+        console.log("Socket send_message error:", error.message);
+      }
     });
 
     socket.on("disconnect", () => {

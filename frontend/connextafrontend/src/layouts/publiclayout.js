@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/PublicLayout.css";
+import "../styles/publiclayout.css";
 import landingImage from "../assests/lan.jpg";
 
 const PublicLayout = ({ children }) => {
@@ -8,9 +8,7 @@ const PublicLayout = ({ children }) => {
       className="public-layout"
       style={{ backgroundImage: `url(${landingImage})` }}
     >
-      <div className="public-overlay">
-        {children}
-      </div>
+      <div className="public-overlay">{children}</div>
     </div>
   );
 };

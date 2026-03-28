@@ -1,0 +1,14 @@
+.private-layout {
+  display: flex;
+}
+
+.private-main {
+  margin-left: 230px;
+  width: 100%;
+}
+
+.private-content {
+  padding: 20px;
+  background: #f3f4f6;
+  min-height: calc(100vh - 70px);
+}

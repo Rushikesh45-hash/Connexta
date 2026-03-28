@@ -28,8 +28,7 @@
 .landing-header .logo {
   font-size: 1.8rem;
   font-weight: bold;
-  background: linear-gradient(90deg, #07dafaff, #f41505ff, #ffed00ff);
-  -webkit-background-clip: text;
+  background: linear-gradient(90deg, #07dafaff, #f41505ff, #ffed00ff);;
   -webkit-text-fill-color: transparent;
 }
 

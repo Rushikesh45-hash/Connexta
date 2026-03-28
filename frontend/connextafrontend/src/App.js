@@ -1,19 +1,26 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LandingPage from "./pages/landingpage";
-import SignupPage from "./pages/signupp";
-import LoginPage from "./pages/login";  
+
+import Landing from "./pages/landing";
+import Signup from "./pages/signup";
+import Login from "./pages/login";
+import Dashboard from "./pages/dashboard";
+import Matches from "./pages/matches";
+
 const App = () => {
   return (
-    <div>
-      <Router>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<LoginPage />} />
-        </Routes>
-      </Router>
-    </div>
+    <Router>
+      <Routes>
+        {/* public */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+
+        {/* protected */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/matches" element={<Matches />} />
+      </Routes>
+    </Router>
   );
 };
 

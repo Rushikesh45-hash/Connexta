@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/landingpage.css";
+import "../styles/landing.css";
 import landingImage from "../assests/lann.jpg";
 
 const Landing = () => {
@@ -21,11 +21,10 @@ const Landing = () => {
       </header>
 
       <section className="hero-section">
-        <img src={landingImage} alt="Find your match" className="hero-image" />
+        <img src={landingImage} alt="match" className="hero-image" />
         <div className="hero-overlay">
           <h1>Find Your Smart matching 🤞❤️</h1>
           <p>Discover a true Connection in fake world</p>
-
           <button className="btn hero-btn" onClick={() => navigate("/signup")}>
             Start Matching
           </button>
@@ -34,7 +33,7 @@ const Landing = () => {
 
       <div className="info-bar">
         <span>#1 Matchmaking Service</span>
-        <span>⭐ ⭐ ⭐ ⭐ ⭐ Ratings on Playstore by 2.4 lakh users</span>
+        <span>⭐ ⭐ ⭐ ⭐ ⭐ Ratings by 2.4 lakh users</span>
         <span>80 Lakh Success Stories</span>
       </div>
 

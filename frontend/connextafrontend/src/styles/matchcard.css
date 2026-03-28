@@ -1,0 +1,31 @@
+.match-card {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 750px;
+  margin-bottom: 20px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.match-img {
+  width: 230px;
+  height: 230px;
+  object-fit: cover;
+}
+
+.match-info {
+  padding: 20px;
+  flex: 1;
+}
+
+.match-score {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.match-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}

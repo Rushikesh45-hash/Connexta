@@ -1,8 +1,7 @@
 // socket/socket.js
 import { Server } from "socket.io";
-import { cacheMessage } from "../utils/chatcache.js"; // ✅ ADDED
-import Message from "../models/message.model.js"; // ✅ ADDED
-
+import { cacheMessage } from "../utils/chatcache.js";
+import {Message} from "../models/message.model.js"; 
 let io;
 //io is just variable which will hold the socket server instance and we will initialize that in the initSocket function and we will export that io variable so that we can use that in our controller to send or recieve data instantly without refreshing the page.
 

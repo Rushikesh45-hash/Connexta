@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PublicLayout from "../layouts/publiclayout.js";
+import PublicLayout from "../layouts/publiclayout";
 import "../styles/signup.css";
-import { registeruser } from "../api/authapi.js";
+import { registeruser } from "../api/authapi";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -29,12 +29,16 @@ const Signup = () => {
         return;
       }
 
-      alert("Signup successful");
+      alert("Signup successful, please login");
       navigate("/login");
     } catch (error) {
       console.log(error);
       alert("Server error");
     }
+  };
+
+  const handlegoogle = () => {
+    window.location.href = "http://localhost:8000/auth/google";
   };
 
   return (
@@ -91,6 +95,14 @@ const Signup = () => {
             Sign Up
           </button>
         </form>
+
+        <button className="google-btn" onClick={handlegoogle}>
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/300/300221.png"
+            alt="google"
+          />
+          Continue with Google
+        </button>
 
         <p>
           Already have an account?{" "}

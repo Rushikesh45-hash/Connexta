@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PublicLayout from "../layouts/publiclayout";
 import "../styles/login.css";
-import { loginuser } from "../api/authapi.js";
+import { loginuser } from "../api/authapi";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -41,6 +41,10 @@ const Login = () => {
     }
   };
 
+  const handlegoogle = () => {
+    window.location.href = "http://localhost:8000/auth/google";
+  };
+
   return (
     <PublicLayout>
       <div className="login-card">
@@ -73,6 +77,14 @@ const Login = () => {
             Login
           </button>
         </form>
+
+        <button className="google-btn" onClick={handlegoogle}>
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/300/300221.png"
+            alt="google"
+          />
+          Continue with Google
+        </button>
 
         <p>
           Don’t have an account?{" "}

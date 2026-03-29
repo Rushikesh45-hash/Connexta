@@ -51,3 +51,23 @@
   font-weight: 600;
   text-decoration: underline;
 }
+
+.google-btn {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.google-btn img {
+  width: 22px;
+  height: 22px;
+}

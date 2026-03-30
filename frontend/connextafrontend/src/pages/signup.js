@@ -29,8 +29,14 @@ const Signup = () => {
         return;
       }
 
-      alert("Signup successful, please login");
-      navigate("/login");
+      alert("Signup successful");
+
+      if (!data.data.isProfileComplete) {
+        navigate("/profile-setup");
+      } else {
+        navigate("/dashboard");
+      }
+
     } catch (error) {
       console.log(error);
       alert("Server error");

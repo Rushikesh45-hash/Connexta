@@ -52,7 +52,11 @@ const registeruser=asynchandler(async (req, res,next)=>{
 //         throw new Apierror(400,"Error in avatar upload middleware")
 //     }
     const userdata=await user.create({
-        user_name,full_name,email,password})
+        user_name,full_name,email,password,
+
+        //  normal signup users are local users
+        authProvider:"local"
+    })
 
     const createduser=await user.findById(userdata._id).select(
         "-password -refreshToken"
@@ -61,19 +65,31 @@ const registeruser=asynchandler(async (req, res,next)=>{
 
     const {AccessToken, RefreshToken}=await generateaccessandrefreshtoken(userdata._id)
     //here we just generate access and refresh token for user
-    const userloggedin=await user.findById(userdata._id).select("-Password -refreshToken")
+    const userloggedin=await user.findById(userdata._id).select("-password -refreshToken")
     const option = {
         httpOnly:true,
-        secure:true
+
+        //  secure must be false for localhost, true only in production https
+        secure:false
     }
     if(!createduser){throw new Apierror(500,"something went wrong")}
 
+    const isProfileComplete = calculateProfileCompletion(userloggedin) === 75;
+
     return res.status(200)
-    .status(200)
-    .cookie("refreshToken",RefreshToken,option)
-    .cookie("accesstoken",AccessToken,option)
+    .cookie("refreshToken", RefreshToken, option)
+    .cookie("accesstoken", AccessToken, option)
     .json(
-        new Apiresponse(200, userdata, "User created successfully")
+        new Apiresponse(
+            200,
+            {
+                user: userloggedin,
+                AccessToken,
+                RefreshToken,
+                isProfileComplete
+            },
+            "User created successfully"
+        )
     );
 })
 
@@ -103,7 +119,7 @@ console.log("typeof avatarurl:", typeof avatarurl);
         req.user._id,
         { $set: {age, gender, Hobbies, location, salary, mobile_No, education, bio, avatar: avatarurl} },
         { new: true, runValidators: true }
-    ).select("-Password -refreshToken");
+    ).select("-password -refreshToken");
     console.log(updateduser)
     const profileCompletion = calculateProfileCompletion(updateduser);
     console.log("Profile Completion:", profileCompletion);
@@ -168,24 +184,42 @@ const loginuser =asynchandler(async (req,res)=>{
     if(!usernamedata){throw new Apierror(404, "YOu have to register first sir")}
     //Here we check if username or email given by user is present or not and if nt means user never register before
 
+    //  if user registered with google then block password login
+    if(usernamedata.authProvider === "google"){
+        throw new Apierror(400,"This account was registered using Google. Please login with Google")
+    }
+
     const ispasswordcorrect = await usernamedata.ischeckpassword(password)
     if(!ispasswordcorrect){throw new Apierror(401,"Password is incorrect")}
 
     const {AccessToken, RefreshToken}=await generateaccessandrefreshtoken(usernamedata._id)
     //here we just generate access and refresh token for user
-    const userloggedin=await user.findById(usernamedata._id).select("-Password -refreshToken")
+    const userloggedin=await user.findById(usernamedata._id).select("-password -refreshToken")
     const option = {
         httpOnly:true,
-        secure:true
+
+        //  secure must be false for localhost, true only in production https
+        secure:false
     }
+
+    const isProfileComplete = calculateProfileCompletion(userloggedin) === 100;
 
     return res
     .status(200)
-    .cookie("refreshToken",RefreshToken,option)
-    .cookie("accesstoken",AccessToken,option)
+    .cookie("refreshToken", RefreshToken, option)
+    .cookie("accesstoken", AccessToken, option)
     .json(
-        new Apiresponse(200,{userloggedin,AccessToken,RefreshToken},"User logged in 66666successfully")
-    )//here we return or send the refresh and access token to user through cookies  
+        new Apiresponse(
+            200,
+            {
+                user: userloggedin,
+                AccessToken,
+                RefreshToken,
+                isProfileComplete
+            },
+            "User logged in successfully"
+        )
+    );//here we return or send the refresh and access token to user through cookies  
 
 })
 
@@ -197,7 +231,9 @@ const logoutuser=asynchandler(async (req,res)=>{
         )
          const option = {
         httpOnly:true,
-        secure:true}
+
+        //  secure must be false for localhost, true only in production https
+        secure:false}
             console.log("Logout succesful")
          return res
             .clearCookie("accesstoken", option)
@@ -233,7 +269,9 @@ const generatenewaccesstoken = asynchandler(async(req,res)=>{
     
             const options={
                 httpOnly:true,
-                secure:true
+
+                //  secure must be false for localhost
+                secure:false
             }
     
             const {AccessToken,RefreshToken}= await generateaccessandrefreshtoken(User._id)
@@ -251,4 +289,3 @@ const generatenewaccesstoken = asynchandler(async(req,res)=>{
 })
 
 export {registeruser,loginuser,logoutuser,generatenewaccesstoken, profileuser, updateprofile};
-

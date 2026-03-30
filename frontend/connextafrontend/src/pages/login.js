@@ -34,7 +34,13 @@ const Login = () => {
       }
 
       alert("Login successful");
-      navigate("/dashboard");
+
+      if (!data.data.isProfileComplete) {
+        navigate("/profile-setup");
+      } else {
+        navigate("/dashboard");
+      }
+
     } catch (error) {
       console.log(error);
       alert("Server error");

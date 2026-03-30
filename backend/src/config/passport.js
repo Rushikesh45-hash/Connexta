@@ -9,11 +9,11 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:8000/auth/google/callback", // ✅ must match console
+      callbackURL: "http://localhost:8000/auth/google/callback", //  must match console
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // ✅ SAFETY: profile.emails may be undefined
+     
         const email = profile.emails?.[0]?.value;
 
         if (!email) {
@@ -25,10 +25,19 @@ passport.use(
         let userr = await user.findOne({ email });
 
         if (!userr) {
+
+          // username auto generate because google doesn't provide username
+          const baseUsername = email.split("@")[0].toLowerCase();
+          const randomNum = Math.floor(1000 + Math.random() * 9000);
+          const generatedUsername = `${baseUsername}${randomNum}`;
+
           userr = await user.create({
             email,
-            name,
-            googleId: profile.id,
+            full_name: name, //  your schema expects full_name not name
+            user_name: generatedUsername, // required field
+            googleId: profile.id, //  store google id
+            authProvider: "google", //  mark as google user
+            verified: true, //optional since google already verifies email, you can trust it, so mark as verified
           });
         }
 

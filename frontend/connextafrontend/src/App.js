@@ -6,19 +6,18 @@ import Signup from "./pages/signup";
 import Login from "./pages/login";
 import Dashboard from "./pages/dashboard";
 import Matches from "./pages/matches";
+import ProfileSetup from "./pages/profilesetup";
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        {/* public */}
         <Route path="/" element={<Landing />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-
-        {/* protected */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/matches" element={<Matches />} />
+        <Route path="/profile-setup" element={<ProfileSetup />} />
       </Routes>
     </Router>
   );

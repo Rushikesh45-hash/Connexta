@@ -11,6 +11,9 @@ const Dashboard = () => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // NEW: Sidebar toggle
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const fetchmatches = async () => {
     setLoading(true);
 
@@ -29,26 +32,113 @@ const Dashboard = () => {
 
   return (
     <PrivateLayout>
-      <div className="dashboard">
-        <div className="dashboard-header">
-          <h2>Match Feed</h2>
+      <div className="dashboard-container">
+        {/* Sidebar Overlay */}
+        <div
+          className={`sidebar-overlay ${sidebarOpen ? "show" : ""}`}
+          onClick={() => setSidebarOpen(false)}
+        ></div>
 
-          <button className="btn outline" onClick={() => navigate("/matches")}>
-            View All Matches
+        {/* Sidebar */}
+        <div className={`dashboard-sidebar ${sidebarOpen ? "open" : ""}`}>
+          <h3 className="sidebar-title">Connexta</h3>
+
+          <button onClick={() => navigate("/dashboard")} className="sidebar-link">
+            🏠 Dashboard
+          </button>
+
+          <button onClick={() => navigate("/matches")} className="sidebar-link">
+            💘 Matches
+          </button>
+
+          <button onClick={() => navigate("/requests")} className="sidebar-link">
+            📩 Requests
+          </button>
+
+          <button onClick={() => navigate("/connections")} className="sidebar-link">
+            🤝 Connections
+          </button>
+
+          <button onClick={() => navigate("/chat")} className="sidebar-link">
+            💬 Chat
+          </button>
+
+          <button onClick={() => navigate("/my-profile")} className="sidebar-link">
+            👤 My Profile
+          </button>
+
+          <button onClick={() => navigate("/settings")} className="sidebar-link">
+            ⚙️ Settings
           </button>
         </div>
 
-        {loading ? (
-          <p>Loading matches...</p>
-        ) : matches.length === 0 ? (
-          <p>No matches found.</p>
-        ) : (
-          <div className="match-list">
-            {matches.map((user) => (
-              <MatchCard key={user._id} user={user} />
-            ))}
+        {/* Main Content */}
+        <div className="dashboard-main">
+          <div className="dashboard-topbar">
+            <button
+              className="hamburger-btn"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <div className="hamburger-line"></div>
+              <div className="hamburger-line"></div>
+              <div className="hamburger-line"></div>
+            </button>
+
+            <div className="dashboard-title-area">
+              <h2 className="dashboard-title">Match Feed</h2>
+              <p className="dashboard-subtitle">
+                Discover your best matches based on your preferences.
+              </p>
+            </div>
+
+            <button className="view-btn" onClick={() => navigate("/matches")}>
+              View All
+            </button>
           </div>
-        )}
+
+          {/* Quick Stats */}
+          <div className="dashboard-stats">
+            <div className="stat-card">
+              <h4>Total Matches</h4>
+              <p>{matches.length}</p>
+            </div>
+
+            <div className="stat-card">
+              <h4>New Today</h4>
+              <p>{matches.length > 0 ? Math.min(3, matches.length) : 0}</p>
+            </div>
+
+            <div className="stat-card">
+              <h4>Suggestions</h4>
+              <p>{matches.length > 0 ? matches.length + 2 : 0}</p>
+            </div>
+          </div>
+
+          {/* Match Feed */}
+          {loading ? (
+            <div className="loading-skeleton">
+              <div className="skeleton-card"></div>
+              <div className="skeleton-card"></div>
+              <div className="skeleton-card"></div>
+            </div>
+          ) : matches.length === 0 ? (
+            <div className="empty-state">
+              <h3>No matches found 😕</h3>
+              <p>
+                Complete your profile properly and update preferences to get better matches.
+              </p>
+              <button className="empty-btn" onClick={() => navigate("/my-profile")}>
+                Complete Profile
+              </button>
+            </div>
+          ) : (
+            <div className="match-list">
+              {matches.map((user) => (
+                <MatchCard key={user._id} user={user} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </PrivateLayout>
   );

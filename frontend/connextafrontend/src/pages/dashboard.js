@@ -11,16 +11,24 @@ const Dashboard = () => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // NEW: Sidebar toggle
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchmatches = async () => {
     setLoading(true);
 
-    const data = await getmatches(1, 6);
+    try {
+      const data = await getmatches(1, 6);
 
-    if (data.success) {
-      setMatches(data.matches || []);
+      if (data.success) {
+        // backend sends matches inside data.data.matches
+        setMatches(data.data.matches || []);
+      } else {
+        setMatches([]);
+      }
+    } catch (error) {
+      console.log(error);
+      setMatches([]);
     }
 
     setLoading(false);
@@ -127,7 +135,7 @@ const Dashboard = () => {
               <p>
                 Complete your profile properly and update preferences to get better matches.
               </p>
-              <button className="empty-btn" onClick={() => navigate("/my-profile")}>
+              <button className="empty-btn" onClick={() => navigate("/profile-setup")}>
                 Complete Profile
               </button>
             </div>

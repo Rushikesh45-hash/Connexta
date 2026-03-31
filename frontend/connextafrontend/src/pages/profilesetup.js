@@ -11,7 +11,7 @@ const ProfileSetup = () => {
     Hobbies: "",
     location: "",
     salary: "",
-    mobile_No: "",
+    mobileNo: "",
     education: "",
     bio: "",
     avatar: null
@@ -35,7 +35,7 @@ const ProfileSetup = () => {
       formDataObj.append("gender", formdata.gender);
       formDataObj.append("location", formdata.location);
       formDataObj.append("salary", formdata.salary);
-      formDataObj.append("mobile_No", formdata.mobile_No);
+      formDataObj.append("mobileNo", formdata.mobileNo);
       formDataObj.append("education", formdata.education);
       formDataObj.append("bio", formdata.bio);
 
@@ -47,8 +47,9 @@ const ProfileSetup = () => {
         formDataObj.append("avatar", formdata.avatar);
       }
 
+      // IMPORTANT: Your backend route is PUT not POST
       const res = await fetch("http://localhost:8000/users/profile", {
-        method: "POST",
+        method: "PUT",
         credentials: "include",
         body: formDataObj
       });
@@ -138,8 +139,8 @@ const ProfileSetup = () => {
               <label>Mobile Number</label>
               <input
                 type="text"
-                name="mobile_No"
-                value={formdata.mobile_No}
+                name="mobileNo"
+                value={formdata.mobileNo}
                 onChange={handlechange}
                 placeholder="Enter mobile number"
                 required
@@ -184,7 +185,12 @@ const ProfileSetup = () => {
 
           <div className="profile-input-group">
             <label>Upload Avatar</label>
-            <input type="file" accept="image/*" onChange={handlefilechange} required />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handlefilechange}
+              required
+            />
           </div>
 
           <button type="submit" className="profile-btn">

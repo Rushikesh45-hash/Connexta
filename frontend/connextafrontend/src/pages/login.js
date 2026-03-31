@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import PublicLayout from "../layouts/publiclayout";
 import "../styles/login.css";
 import { loginuser } from "../api/authapi";
+import { getme } from "../api/profilecheck";  
 
 const Login = () => {
   const navigate = useNavigate();
@@ -35,7 +36,14 @@ const Login = () => {
 
       alert("Login successful");
 
-      if (!data.data.isProfileComplete) {
+      const meData = await getme();
+
+      if (!meData.success) {
+        alert(meData.message || "Unable to fetch profile status");
+        return;
+      }
+
+      if (!meData.data.isProfileComplete) {
         navigate("/profile-setup");
       } else {
         navigate("/dashboard");

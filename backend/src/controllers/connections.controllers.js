@@ -83,7 +83,7 @@ export const reviewConnectionRequest = asynchandler(async (req, res) => {
         new Apiresponse(200, connection, `Connection ${status}`)
     );
 });
-//if request is penf=ding then through this we can accept ot reject the request this is route do
+//if request is pending then through this we can accept ot reject the request this is route do
 
 export const discoverusers = asynchandler(async (req, res) => {
     const currentUserId = req.user._id;

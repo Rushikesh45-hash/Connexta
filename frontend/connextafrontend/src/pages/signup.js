@@ -31,7 +31,7 @@ const Signup = () => {
 
       alert("Signup successful");
 
-      if (!data.data.isProfileComplete) {
+      if (!data.data.calculateProfileCompletion || data.data.calculateProfileCompletion < 75) {
         navigate("/profile-setup");
       } else {
         navigate("/dashboard");

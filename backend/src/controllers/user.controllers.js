@@ -94,35 +94,45 @@ const registeruser=asynchandler(async (req, res,next)=>{
 })
 
 const profileuser=asynchandler(async (req,res)=>{
-    const {age, gender, Hobbies, location, salary, mobile_No, education, bio} = req.body
+    const {age, gender, Hobbies, location, salary, mobileNo, education, bio} = req.body
+
+    // required fields check
     const requiredFields = [
-        age, gender, Hobbies, location, salary, mobile_No, education, bio
+        age, gender, Hobbies, location, salary, mobileNo, education, bio
     ];
+
     if (requiredFields.some(field => field === undefined || String(field).trim() === "")) {
         throw new Apierror(400, "All fields are required");
     }
 
+    //  Hobbies should be array always
+    const hobbiesArray = Array.isArray(Hobbies) ? Hobbies : [Hobbies];
+
     const avatarlocalpath=req.file?.path;
    // console.log(avatarlocalpath, typeof(avatarlocalpath))
     if(!avatarlocalpath){
-        throw new Apierror(400,"Avatar is required")}
+        throw new Apierror(400,"Avatar is required")
+    }
 
     const avatarurl = await uploadcloudinary(avatarlocalpath);
     if(!avatarurl){
         throw new Apierror(400,"Error in avatar upload middleware")
     }
-    console.log("avatarurl:", avatarurl);
-console.log("typeof avatarurl:", typeof avatarurl);
 
+    console.log("avatarurl:", avatarurl);
+    console.log("typeof avatarurl:", typeof avatarurl);
 
     const updateduser=await user.findByIdAndUpdate(
         req.user._id,
-        { $set: {age, gender, Hobbies, location, salary, mobile_No, education, bio, avatar: avatarurl} },
+        { $set: {age, gender, Hobbies: hobbiesArray, location, salary, mobileNo, education, bio, avatar: avatarurl} },
         { new: true, runValidators: true }
     ).select("-password -refreshToken");
+
     console.log(updateduser)
+
     const profileCompletion = calculateProfileCompletion(updateduser);
     console.log("Profile Completion:", profileCompletion);
+
     return res.status(200).json(
         new Apiresponse(
             200,
@@ -133,9 +143,6 @@ console.log("typeof avatarurl:", typeof avatarurl);
             "User profile updated successfully"
         )
     );
-
-
-
 });
 
 const updateprofile=asynchandler(async (req,res)=>{
@@ -288,4 +295,35 @@ const generatenewaccesstoken = asynchandler(async(req,res)=>{
         }
 })
 
-export {registeruser,loginuser,logoutuser,generatenewaccesstoken, profileuser, updateprofile};
+const getcurrentuser = asynchandler(async (req, res) => {
+    const currentuser = await user.findById(req.user._id).select("-password -refreshToken");
+
+    if (!currentuser) {
+        throw new Apierror(404, "User not found");
+    }
+
+    const isProfileComplete =
+        currentuser.age &&
+        currentuser.gender &&
+        currentuser.location &&
+        currentuser.salary &&
+        currentuser.mobileNo &&
+        currentuser.education &&
+        currentuser.bio &&
+        currentuser.avatar &&
+        currentuser.Hobbies &&
+        currentuser.Hobbies.length > 0;
+
+    return res.status(200).json(
+        new Apiresponse(
+            200,
+            {
+                user: currentuser,
+                isProfileComplete: Boolean(isProfileComplete)
+            },
+            "Current user fetched successfully"
+        )
+    );
+});
+
+export {registeruser,loginuser,logoutuser,generatenewaccesstoken, profileuser, updateprofile, getcurrentuser};

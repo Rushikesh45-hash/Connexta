@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { loginuser, registeruser,logoutuser,generatenewaccesstoken, profileuser, updateprofile } from "../controllers/user.controllers.js";
+import { loginuser, registeruser,logoutuser,generatenewaccesstoken, profileuser, updateprofile,getcurrentuser  } from "../controllers/user.controllers.js";
 import { sendConnectionRequest, givependingrequest, reviewConnectionRequest, discoverusers, blockuser, unblockuser, matchingalgorithm} from "../controllers/connections.controllers.js";  
 import { sendmessage, getmessages, markasread } from "../controllers/chat.controller.js";
 import {upload} from "../middlewares/multer.js"
@@ -23,6 +23,8 @@ router.patch("/review/:connectionId",verifyJWT,reviewConnectionRequest);
 router.route("/pending").get(verifyJWT,givependingrequest);
 
 router.route("/profile").put(verifyJWT,upload.single("avatar"),profileuser);
+
+router.route("/checkprofilecomplete").get(verifyJWT, getcurrentuser);
 
 router.route("/discover").get(verifyJWT, discoverusers);
 

@@ -9,7 +9,7 @@ export const calculateProfileCompletion = (user) => {
         user.salary,
         user.age,
         user.gender,
-        user.mobile_No,
+        user.mobileNo,
         user.full_name,
         user.email
     ];

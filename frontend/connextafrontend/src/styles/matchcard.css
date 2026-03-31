@@ -1,31 +1,72 @@
 .match-card {
   display: flex;
+  gap: 15px;
   background: white;
-  border-radius: 12px;
+  border-radius: 18px;
+  padding: 15px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.08);
+  align-items: center;
+  width: 100%;
   overflow: hidden;
-  width: 750px;
-  margin-bottom: 20px;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.08);
 }
 
-.match-img {
-  width: 230px;
-  height: 230px;
+.match-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 16px;
   object-fit: cover;
 }
 
 .match-info {
-  padding: 20px;
   flex: 1;
 }
 
-.match-score {
+.match-info h3 {
+  margin: 0;
+  font-size: 18px;
   font-weight: bold;
-  margin-top: 10px;
+  color: #222;
 }
 
-.match-buttons {
+.match-info p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.match-actions {
+  margin-top: 10px;
   display: flex;
   gap: 10px;
-  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 10px;
+  background: #4f46e5;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-secondary {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 10px;
+  background: #e0e7ff;
+  color: #4f46e5;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-skip {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: #b91c1c;
+  cursor: pointer;
+  font-weight: 600;
 }

@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { loginuser, registeruser,logoutuser,generatenewaccesstoken, profileuser, updateprofile,getcurrentuser  } from "../controllers/user.controllers.js";
+import { loginuser, registeruser,logoutuser,generatenewaccesstoken, profileuser, updateprofile,getcurrentuser, getcurrentuserbyid } from "../controllers/user.controllers.js";
 import { sendConnectionRequest, givependingrequest, reviewConnectionRequest, discoverusers, blockuser, unblockuser, matchingalgorithm} from "../controllers/connections.controllers.js";  
 import { sendmessage, getmessages, markasread } from "../controllers/chat.controller.js";
 import {upload} from "../middlewares/multer.js"
@@ -22,7 +22,9 @@ router.patch("/review/:connectionId",verifyJWT,reviewConnectionRequest);
 
 router.route("/pending").get(verifyJWT,givependingrequest);
 
-router.route("/profile").put(verifyJWT,upload.single("avatar"),profileuser);
+router.route("/profile").put(verifyJWT,upload.single("avatar"),profileuser);//creating profile with avatar upload
+
+router.route("/user/:id").get(verifyJWT, getcurrentuserbyid);//for getting our profile to show in profile view page
 
 router.route("/checkprofilecomplete").get(verifyJWT, getcurrentuser);
 

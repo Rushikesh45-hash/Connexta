@@ -127,8 +127,6 @@ export const discoverusers = asynchandler(async (req, res) => {
     );
 });
 
-
-
 export const blockuser = asynchandler(async (req, res) => {
     const currentUser = req.user._id; 
     const { blockedUserId } = req.params;
@@ -144,8 +142,6 @@ export const blockuser = asynchandler(async (req, res) => {
     return res.status(201).json(new Apiresponse(201, block, "User blocked successfully"));
 });
 
-
-
 export const unblockuser = asynchandler(async (req, res) => {
     const currentUser = req.user._id;
     const { blockedUserId } = req.params;
@@ -157,33 +153,35 @@ export const unblockuser = asynchandler(async (req, res) => {
     return res.status(200).json(new Apiresponse(200, null, "User unblocked successfully"));
 });
 
-
 const unwantedwords = ["the", "is", "in", "and", "or", "of", "to", "a", "with", "for", "on", "by", "as", "at", "from"];
 const maxdiff = {
     age: 5,
     salary: 40000
 }
- const weight={
+const weight={
     age : 10,
     salary : 20,
     location :10,
     Hobbies : 25,
     bio : 20,
     interactionbonus : 5
- }
+}
 
- function getmeaningkeywords(bio){
+function getmeaningkeywords(bio){
     return bio
     ?.toLowerCase()
     .replace(/[^\w\s]/g, "")
     .split(" ")
     .filter(word => !unwantedwords.includes(word)) || [];
- }
+}
 
-
- function calculatematchscore(currentuser, otheruser){
+function calculatematchscore(currentuser, otheruser){
     let score = 0;
     const reasons = [];
+
+    // SAFETY: hobbies fallback if undefined
+    const currentHobbies = currentuser.Hobbies || [];
+    const otherHobbies = otheruser.Hobbies || [];
 
     const agediff = Math.abs(currentuser.age - otheruser.age);
     const agescore = Math.max(0, maxdiff.age - agediff) / maxdiff.age * weight.age;
@@ -199,15 +197,21 @@ const maxdiff = {
         reasons.push(`Salary difference is ${salarydiff}, but actually salary is just a number and it doesn't define you as a person so you can connect to each other, this is my personal opinion`);
     }
 
-    const cityscore = currentuser.location === otheruser.location ? weight.location : 0;
+    // FIX: case-insensitive location match
+    const cityscore = currentuser.location?.toLowerCase() === otheruser.location?.toLowerCase()
+        ? weight.location
+        : 0;
+
     if (cityscore > 0) {
         score += cityscore;
         reasons.push(`You both live in the same city ${currentuser.location} so you can connect to each other`);
-
     }
 
-    const commonhobbies = currentuser.Hobbies.filter(hobby => otheruser.Hobbies.includes(hobby));
-    const hobbiescore = (commonhobbies.length / (currentuser.Hobbies.length)) * weight.Hobbies;
+    const commonhobbies = currentHobbies.filter(hobby => otherHobbies.includes(hobby));
+    const hobbiescore = currentHobbies.length > 0
+        ? (commonhobbies.length / currentHobbies.length) * weight.Hobbies
+        : 0;
+
     if (hobbiescore > 0) {
         score += hobbiescore;
         reasons.push(`You both have ${commonhobbies.length} common hobbies so it will easy to connect to each other and have fun together`);
@@ -216,6 +220,7 @@ const maxdiff = {
     const currentuserkeywords = getmeaningkeywords(currentuser.bio);
     const otheruserkeywords = getmeaningkeywords(otheruser.bio);
     const commonkeywords = currentuserkeywords.filter(keyword => otheruserkeywords.includes(keyword));
+
     const bioscore = (commonkeywords.length / (currentuserkeywords.length || 1)) * weight.bio;  
     if (bioscore > 0) {
         score += bioscore;
@@ -232,10 +237,9 @@ const maxdiff = {
     score = Math.min(100, score);
 
     return {score, reasons};
+}
 
- }
-
- export const matchingalgorithm = asynchandler(async(req,res)=>{
+export const matchingalgorithm = asynchandler(async(req,res)=>{
     const currentuserid = req.user._id;
 
     // pagination added
@@ -251,25 +255,33 @@ const maxdiff = {
     }).select("blockedId blockerId -_id");
 
     const allblockuserids = blockedusers.map(m =>{
-        return m.blockerId.toString() === currentuserid.toString() ? m.blockedId.toString() : m.blockerId.toString();
-    })
-
-    const connections = await Connection.find({
-    $or: [
-      { requester: currentuserid._id },
-      { recipient: currentuserid._id }
-    ]
-    }).select("requester recipient status");
-
-    const connectedOrpendingids = connections.map(c =>
-        c.requester.toString() === currentuserid._id.toString() ? c.recipient.toString() : c.requester.toString()
-    );
-
-    const candidates = await user.find({
-        _id: { $nin: [...allblockuserids, ...connectedOrpendingids, currentuserid._id] }
+        return m.blockerId.toString() === currentuserid.toString() 
+            ? m.blockedId.toString() 
+            : m.blockerId.toString();
     });
 
-    const threshold = 78;
+ 
+    const connections = await Connection.find({
+        $or: [
+            { requester: currentuserid },
+            { recipient: currentuserid }
+        ]
+    }).select("requester recipient status");
+
+
+    const connectedOrpendingids = connections.map(c =>
+        c.requester.toString() === currentuserid.toString() 
+            ? c.recipient.toString() 
+            : c.requester.toString()
+    );
+
+    // FIX: exclude currentuserid directly
+    const candidates = await user.find({
+        _id: { $nin: [...allblockuserids, ...connectedOrpendingids, currentuserid] }
+    });
+
+    const threshold = 50;
+
     const matches = candidates.map(candidate => {
         const { score, reasons } = calculatematchscore(req.user, candidate);
         return { user: candidate, score, reasons };
@@ -293,7 +305,14 @@ const maxdiff = {
     }));
 
     if(matches.length === 0){
-        return res.status(200).json(new Apiresponse(200, [], "No matches found based on the criteria"));
+        return res.status(200).json(
+            new Apiresponse(200, {
+                matches: [],
+                totalMatches: 0,
+                currentPage: page,
+                totalPages: 0
+            }, "No matches found based on the criteria")
+        );
     }
 
     return res.status(200).json(new Apiresponse(200, {
@@ -302,6 +321,4 @@ const maxdiff = {
         currentPage: page,
         totalPages: Math.ceil(matches.length / limit)
     }, "Match scores calculated successfully"));
-
-
- })
+});

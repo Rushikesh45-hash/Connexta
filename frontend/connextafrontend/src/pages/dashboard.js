@@ -11,6 +11,8 @@ const Dashboard = () => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // NEW: total matches count from backend
+  const [totalMatches, setTotalMatches] = useState(0);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -23,12 +25,17 @@ const Dashboard = () => {
       if (data.success) {
         // backend sends matches inside data.data.matches
         setMatches(data.data.matches || []);
+
+        // NEW: backend sends totalMatches
+        setTotalMatches(data.data.totalMatches || 0);
       } else {
         setMatches([]);
+        setTotalMatches(0);
       }
     } catch (error) {
       console.log(error);
       setMatches([]);
+      setTotalMatches(0);
     }
 
     setLoading(false);
@@ -108,17 +115,17 @@ const Dashboard = () => {
           <div className="dashboard-stats">
             <div className="stat-card">
               <h4>Total Matches</h4>
-              <p>{matches.length}</p>
+              <p>{totalMatches}</p>
             </div>
 
             <div className="stat-card">
               <h4>New Today</h4>
-              <p>{matches.length > 0 ? Math.min(3, matches.length) : 0}</p>
+              <p>{matches.length}</p>
             </div>
 
             <div className="stat-card">
               <h4>Suggestions</h4>
-              <p>{matches.length > 0 ? matches.length + 2 : 0}</p>
+              <p>{totalMatches}</p>
             </div>
           </div>
 

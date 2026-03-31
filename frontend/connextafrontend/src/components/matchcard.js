@@ -1,30 +1,54 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { sendConnectionRequest } from "../api/connectionapi"; // create this api
 import "../styles/matchcard.css";
 
 const MatchCard = ({ user }) => {
+  const navigate = useNavigate();
+
+  const handleSendRequest = async () => {
+    try {
+      const res = await sendConnectionRequest(user._id);
+      alert(res.message || "Request Sent!");
+    } catch (err) {
+      console.log(err);
+      alert("Failed to send request");
+    }
+  };
+
+  const handleViewProfile = () => {
+    navigate(`/profile/${user._id}`);
+  };
+
   return (
     <div className="match-card">
       <img
-        src={user.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
-        alt="match"
-        className="match-img"
+        className="match-avatar"
+        src={user.avatar || "https://via.placeholder.com/150"}
+        alt="profile"
       />
 
       <div className="match-info">
         <h3>
-          {user.full_name || "unknown"}, {user.age || "N/A"}
+          {user.full_name}, {user.age}
         </h3>
 
-        <p>📍 {user.location || "unknown"}</p>
-        <p>💼 {user.education || "unknown"}</p>
-        <p>💰 {user.salary || "unknown"}</p>
+        <p>📍 {user.location}</p>
 
-        <p className="match-score">❤️ Match Score: {user.matchScore || 0}%</p>
+        <p>💘 Match Score: {user.matchScore}%</p>
 
-        <div className="match-buttons">
-          <button className="btn">Send Request</button>
-          <button className="btn outline">View Profile</button>
-          <button className="btn danger">Skip</button>
+        <div className="match-actions">
+          <button className="btn-primary" onClick={handleSendRequest}>
+            Send Request
+          </button>
+
+          <button className="btn-secondary" onClick={handleViewProfile}>
+            View Profile
+          </button>
+
+          <button className="btn-skip" onClick={() => alert("Skipped")}>
+            Skip
+          </button>
         </div>
       </div>
     </div>

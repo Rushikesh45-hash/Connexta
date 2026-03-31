@@ -15,16 +15,19 @@
   padding: 25px;
   position: fixed;
   top: 0;
-  left: -300px;
+  left: 0;
   height: 100vh;
   transition: 0.35s ease-in-out;
   z-index: 1000;
   border-top-right-radius: 18px;
   border-bottom-right-radius: 18px;
+
+  /* IMPORTANT FIX */
+  transform: translateX(-110%);
 }
 
 .dashboard-sidebar.open {
-  left: 0;
+  transform: translateX(0);
 }
 
 .sidebar-title {

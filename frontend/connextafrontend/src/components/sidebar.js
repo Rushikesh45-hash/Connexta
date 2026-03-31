@@ -28,9 +28,27 @@ const Sidebar = () => {
           Chat
         </NavLink>
 
-        <NavLink to="/my-profile" className="sidebar-link">
-          My Profile
-        </NavLink>
+        <button
+          onClick={async () => {
+            try {
+              const res = await fetch("http://localhost:8000/users/checkprofilecomplete", {
+                method: "GET",
+                credentials: "include",
+              });
+
+              const data = await res.json();
+
+              if (data.success) {
+                navigate(`/profile/${data.data._id}`);
+              }
+            } catch (err) {
+              console.log(err);
+            }
+          }}
+          className="sidebar-link"
+        >
+          👤 My Profile
+        </button>
 
         <NavLink to="/settings" className="sidebar-link">
           Settings

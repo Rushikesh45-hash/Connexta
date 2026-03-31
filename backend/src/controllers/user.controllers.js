@@ -326,4 +326,14 @@ const getcurrentuser = asynchandler(async (req, res) => {
     );
 });
 
+export const getcurrentuserbyid = asynchandler(async (req, res) => {
+  const profile = await user.findById(req.params.id).select("-password -refreshToken");
+
+  if (!profile) {
+    throw new Apierror(404, "User not found");
+  }
+
+  return res.status(200).json(new Apiresponse(200, profile, "User profile fetched"));
+});
+
 export {registeruser,loginuser,logoutuser,generatenewaccesstoken, profileuser, updateprofile, getcurrentuser};

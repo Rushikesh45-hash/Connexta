@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import PrivateLayout from "../layouts/privatelayout";
 import MatchCard from "../components/matchcard";
 import { getmatches } from "../api/matchapi";
+import { getCurrentUser } from "../api/userapi"; // NEW
 import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 
@@ -45,6 +46,28 @@ const Dashboard = () => {
     fetchmatches();
   }, []);
 
+  const handleSidebarNavigate = (path) => {
+    setSidebarOpen(false);
+    navigate(path);
+  };
+
+  // NEW: My Profile redirect using backend current user id
+  const handleMyProfile = async () => {
+    try {
+      const data = await getCurrentUser();
+
+      if (data.success) {
+        setSidebarOpen(false);
+        navigate(`/profile/${data.data.user._id}`);
+      } else {
+        alert(data.message || "Unable to fetch current user");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Server error");
+    }
+  };
+
   return (
     <PrivateLayout>
       <div className="dashboard-container">
@@ -58,31 +81,49 @@ const Dashboard = () => {
         <div className={`dashboard-sidebar ${sidebarOpen ? "open" : ""}`}>
           <h3 className="sidebar-title">Connexta</h3>
 
-          <button onClick={() => navigate("/dashboard")} className="sidebar-link">
+          <button
+            onClick={() => handleSidebarNavigate("/dashboard")}
+            className="sidebar-link"
+          >
             🏠 Dashboard
           </button>
 
-          <button onClick={() => navigate("/matches")} className="sidebar-link">
+          <button
+            onClick={() => handleSidebarNavigate("/matches")}
+            className="sidebar-link"
+          >
             💘 Matches
           </button>
 
-          <button onClick={() => navigate("/requests")} className="sidebar-link">
+          <button
+            onClick={() => handleSidebarNavigate("/requests")}
+            className="sidebar-link"
+          >
             📩 Requests
           </button>
 
-          <button onClick={() => navigate("/connections")} className="sidebar-link">
+          <button
+            onClick={() => handleSidebarNavigate("/connections")}
+            className="sidebar-link"
+          >
             🤝 Connections
           </button>
 
-          <button onClick={() => navigate("/chat")} className="sidebar-link">
+          <button
+            onClick={() => handleSidebarNavigate("/chat")}
+            className="sidebar-link"
+          >
             💬 Chat
           </button>
 
-          <button onClick={() => navigate("/my-profile")} className="sidebar-link">
+          <button onClick={handleMyProfile} className="sidebar-link">
             👤 My Profile
           </button>
 
-          <button onClick={() => navigate("/settings")} className="sidebar-link">
+          <button
+            onClick={() => handleSidebarNavigate("/settings")}
+            className="sidebar-link"
+          >
             ⚙️ Settings
           </button>
         </div>
@@ -119,7 +160,7 @@ const Dashboard = () => {
             </div>
 
             <div className="stat-card">
-              <h4>New Today</h4>
+              <h4>Showing Now</h4>
               <p>{matches.length}</p>
             </div>
 
@@ -140,9 +181,13 @@ const Dashboard = () => {
             <div className="empty-state">
               <h3>No matches found 😕</h3>
               <p>
-                Complete your profile properly and update preferences to get better matches.
+                Complete your profile properly and update preferences to get
+                better matches.
               </p>
-              <button className="empty-btn" onClick={() => navigate("/profile-setup")}>
+              <button
+                className="empty-btn"
+                onClick={() => navigate("/profile-setup")}
+              >
                 Complete Profile
               </button>
             </div>

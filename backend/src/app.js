@@ -20,7 +20,7 @@ import authRoutes from "./routes/auth.google.js"
 
 app.use("/users",UserRouter)
 
-app.use("/connections",UserRouter)
+// app.use("/connections",UserRouter)
 
 app.use("/auth", authRoutes);
 

@@ -7,7 +7,6 @@ import Login from "./pages/login";
 import Dashboard from "./pages/dashboard";
 import Matches from "./pages/matches";
 import ProfileSetup from "./pages/profilesetup";
-import Matches from "./pages/matches";
 import ProfileView from "./pages/profileview";
 
 const App = () => {
@@ -20,7 +19,6 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/matches" element={<Matches />} />
         <Route path="/profile-setup" element={<ProfileSetup />} />
-        <Route path="/matches" element={<Matches />} />
         <Route path="/profile/:id" element={<ProfileView />} />
       </Routes>
     </Router>

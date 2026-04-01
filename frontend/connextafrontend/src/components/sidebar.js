@@ -1,8 +1,11 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "../styles/sidebar.css";
+import { getCurrentUser } from "../api/userapi";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="sidebar">
       <h2 className="sidebar-logo">Connexta</h2>
@@ -27,29 +30,22 @@ const Sidebar = () => {
         <NavLink to="/chat" className="sidebar-link">
           Chat
         </NavLink>
-
         <button
           onClick={async () => {
             try {
-              const res = await fetch("http://localhost:8000/users/checkprofilecomplete", {
-                method: "GET",
-                credentials: "include",
-              });
-
-              const data = await res.json();
+              const data = await getCurrentUser();
 
               if (data.success) {
-                navigate(`/profile/${data.data._id}`);
+                navigate(`/profile/${data.data.user._id}`);
               }
-            } catch (err) {
-              console.log(err);
+            } catch (error) {
+              console.log(error);
             }
           }}
           className="sidebar-link"
         >
           👤 My Profile
         </button>
-
         <NavLink to="/settings" className="sidebar-link">
           Settings
         </NavLink>

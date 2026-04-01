@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import PublicLayout from "../layouts/publiclayout";
 import "../styles/login.css";
 import { loginuser } from "../api/authapi";
-import { getme } from "../api/profilecheck";  
+import { getCurrentUser } from "../api/userapi"; 
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const Login = () => {
 
       alert("Login successful");
 
-      const meData = await getme();
+      const meData = await getCurrentUser();
 
       if (!meData.success) {
         alert(meData.message || "Unable to fetch profile status");

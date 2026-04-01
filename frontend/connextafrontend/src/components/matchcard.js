@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { sendConnectionRequest } from "../api/connectionapi"; // create this api
+import { sendConnectionRequest } from "../api/connectionapi";
 import "../styles/matchcard.css";
 
 const MatchCard = ({ user }) => {
@@ -20,36 +20,42 @@ const MatchCard = ({ user }) => {
     navigate(`/profile/${user._id}`);
   };
 
+  const handleSkip = () => {
+    alert("Skipped");
+  };
+
   return (
     <div className="match-card">
-      <img
-        className="match-avatar"
-        src={user.avatar || "https://via.placeholder.com/150"}
-        alt="profile"
-      />
+      <div className="match-top">
+        <img
+          className="match-avatar"
+          src={user.avatar || "https://via.placeholder.com/150"}
+          alt="profile"
+        />
 
-      <div className="match-info">
-        <h3>
-          {user.full_name}, {user.age}
-        </h3>
+        <div className="match-basic">
+          <h3>
+            {user.full_name}, {user.age}
+          </h3>
 
-        <p>📍 {user.location}</p>
+          <p className="match-location">📍 {user.location}</p>
 
-        <p>💘 Match Score: {user.matchScore}%</p>
-
-        <div className="match-actions">
-          <button className="btn-primary" onClick={handleSendRequest}>
-            Send Request
-          </button>
-
-          <button className="btn-secondary" onClick={handleViewProfile}>
-            View Profile
-          </button>
-
-          <button className="btn-skip" onClick={() => alert("Skipped")}>
-            Skip
-          </button>
+          <p className="match-score">💘 Match Score: {user.matchScore}%</p>
         </div>
+      </div>
+
+      <div className="match-actions">
+        <button className="btn-primary" onClick={handleSendRequest}>
+          Send Request
+        </button>
+
+        <button className="btn-secondary" onClick={handleViewProfile}>
+          View Profile
+        </button>
+
+        <button className="btn-skip" onClick={handleSkip}>
+          Skip
+        </button>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ const ProfileView = () => {
     setLoading(true);
 
     try {
-      const res = await axios.get(`/users/user/${id}`, {
+      const res = await axios.get(`http://localhost:8000/users/user/${id}`, {
         withCredentials: true,
       });
 

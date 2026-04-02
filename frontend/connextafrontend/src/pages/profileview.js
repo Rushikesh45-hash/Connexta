@@ -10,24 +10,24 @@ const ProfileView = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async () => {
-    setLoading(true);
-
-    try {
-      const res = await axios.get(`http://localhost:8000/users/user/${id}`, {
-        withCredentials: true,
-      });
-
-      setProfile(res.data.data);
-    } catch (err) {
-      console.log(err);
-      setProfile(null);
-    }
-
-    setLoading(false);
-  };
-
   useEffect(() => {
+    const fetchProfile = async () => {
+      setLoading(true);
+
+      try {
+        const res = await axios.get(`http://localhost:8000/users/user/${id}`, {
+          withCredentials: true,
+        });
+
+        setProfile(res.data.data);
+      } catch (err) {
+        console.log(err);
+        setProfile(null);
+      }
+
+      setLoading(false);
+    };
+
     fetchProfile();
   }, [id]);
 
@@ -58,6 +58,7 @@ const ProfileView = () => {
               <p><b>Full Name:</b> {profile.full_name}</p>
               <p><b>Username:</b> {profile.user_name}</p>
               <p><b>Email:</b> {profile.email || "Not Available"}</p>
+              <p><b>Mobile No:</b> {profile.mobileNo || "Not Available"}</p>
               <p><b>Gender:</b> {profile.gender || "Not Available"}</p>
               <p><b>Age:</b> {profile.age || "Not Available"}</p>
               <p><b>Salary:</b> {profile.salary || "Not Available"}</p>
@@ -71,8 +72,7 @@ const ProfileView = () => {
                   ? profile.Hobbies.join(", ")
                   : "Not Available"}
               </p>
-
-              <p><b>Profile Completed:</b> {profile.isProfileComplete ? "Yes" : "No"}</p>
+              <p><b>Profile Completed:</b> {"Yes"}</p>
             </div>
           </div>
         )}
@@ -82,3 +82,10 @@ const ProfileView = () => {
 };
 
 export default ProfileView;
+
+
+
+
+
+
+

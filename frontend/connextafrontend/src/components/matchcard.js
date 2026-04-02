@@ -40,7 +40,7 @@ const MatchCard = ({ user }) => {
 
           <p className="match-location">📍 {user.location}</p>
 
-          <p className="match-score">💘 Match Score: {user.matchScore}%</p>
+          {/* <p className="match-score">💘 Match Score: {user.matchScore}%</p> */}
         </div>
       </div>
 

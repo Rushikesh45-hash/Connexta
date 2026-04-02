@@ -295,6 +295,8 @@ const generatenewaccesstoken = asynchandler(async(req,res)=>{
         }
 })
 
+
+//this controller is used to check profile is complete or not
 const getcurrentuser = asynchandler(async (req, res) => {
     const currentuser = await user.findById(req.user._id).select("-password -refreshToken");
 
@@ -302,24 +304,27 @@ const getcurrentuser = asynchandler(async (req, res) => {
         throw new Apierror(404, "User not found");
     }
 
-    const isProfileComplete =
-        currentuser.age &&
-        currentuser.gender &&
-        currentuser.location &&
-        currentuser.salary &&
-        currentuser.mobileNo &&
-        currentuser.education &&
-        currentuser.bio &&
-        currentuser.avatar &&
-        currentuser.Hobbies &&
-        currentuser.Hobbies.length > 0;
+    const missingFields = [];
+
+    if (currentuser.age === null || currentuser.age === undefined) missingFields.push("age");
+    if (!currentuser.gender?.trim()) missingFields.push("gender");
+    if (!currentuser.location?.trim()) missingFields.push("location");
+    if (currentuser.salary === null || currentuser.salary === undefined) missingFields.push("salary");
+    if (!currentuser.mobileNo?.trim()) missingFields.push("mobileNo");
+    if (!currentuser.education?.trim()) missingFields.push("education");
+    if (!currentuser.bio?.trim()) missingFields.push("bio");
+    if (!currentuser.avatar?.trim()) missingFields.push("avatar");
+    if (!Array.isArray(currentuser.Hobbies) || currentuser.Hobbies.length === 0) missingFields.push("Hobbies");
+
+    const isProfileComplete = missingFields.length === 0;
 
     return res.status(200).json(
         new Apiresponse(
             200,
             {
                 user: currentuser,
-                isProfileComplete: Boolean(isProfileComplete)
+                isProfileComplete,
+                missingFields
             },
             "Current user fetched successfully"
         )

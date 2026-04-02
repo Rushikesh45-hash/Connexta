@@ -13,7 +13,7 @@ const ProfileSetup = () => {
     salary: "",
     mobileNo: "",
     education: "",
-    bio: "",
+    bio: "",                                           
     avatar: null
   });
 

@@ -280,7 +280,7 @@ export const matchingalgorithm = asynchandler(async(req,res)=>{
         _id: { $nin: [...allblockuserids, ...connectedOrpendingids, currentuserid] }
     });
 
-    const threshold = 50;
+    const threshold = 20;
 
     const matches = candidates.map(candidate => {
         const { score, reasons } = calculatematchscore(req.user, candidate);

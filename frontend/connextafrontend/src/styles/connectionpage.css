@@ -1,0 +1,108 @@
+.connections-container {
+  padding: 30px;
+}
+
+.connections-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.connections-header h2 {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.connections-header p {
+  color: #666;
+  margin-top: 8px;
+}
+
+.connections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.connection-card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  text-align: center;
+  transition: 0.3s ease;
+}
+
+.connection-card:hover {
+  transform: translateY(-5px);
+}
+
+.connection-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+  border: 3px solid #f0f0f0;
+}
+
+.connection-info h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.connection-info p {
+  margin: 6px 0;
+  color: #444;
+}
+
+.connection-actions {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.connection-btn-primary {
+  background: #ff4d6d;
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.connection-btn-primary:hover {
+  background: #e63c5c;
+}
+
+.connection-btn-secondary {
+  background: #f5f5f5;
+  border: none;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.connection-btn-secondary:hover {
+  background: #e8e8e8;
+}
+
+.connections-empty {
+  text-align: center;
+  padding: 50px;
+}
+
+.connections-btn {
+  margin-top: 15px;
+  background: black;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}

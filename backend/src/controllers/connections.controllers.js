@@ -83,7 +83,7 @@ export const reviewConnectionRequest = asynchandler(async (req, res) => {
         new Apiresponse(200, connection, `Connection ${status}`)
     );
 });
-//if request is pending then through this we can accept ot reject the request this is route do
+//if request is pending then through this we can accept or reject the request this is route do
 
 export const discoverusers = asynchandler(async (req, res) => {
     const currentUserId = req.user._id;
@@ -321,4 +321,27 @@ export const matchingalgorithm = asynchandler(async(req,res)=>{
         currentPage: page,
         totalPages: Math.ceil(matches.length / limit)
     }, "Match scores calculated successfully"));
+});
+
+
+export const myconnections = asynchandler(async (req, res) => {
+  const currentuser = req.user._id;
+
+  // here we are fetching all accepted connections where current user is either requester or recipient
+  const connections = await Connection.find({
+    status: "accepted",
+    $or: [{ requester: currentuser }, { recipient: currentuser }],
+  })
+    .populate("requester", "-password -refreshToken")
+    .populate("recipient", "-password -refreshToken");
+
+  if (!connections.length) {
+    return res
+      .status(200)
+      .json(new Apiresponse(200, [], "No connections found"));
+  }
+
+  return res
+    .status(200)
+    .json(new Apiresponse(200, connections, "Connections retrieved successfully"));
 });

@@ -95,11 +95,12 @@ const Dashboard = () => {
             💘 Matches
           </button>
 
+          {/* NEW: Pending Requests button */}
           <button
-            onClick={() => handleSidebarNavigate("/requests")}
+            onClick={() => handleSidebarNavigate("/pending-requests")}
             className="sidebar-link"
           >
-            📩 Requests
+            📩 Pending Requests
           </button>
 
           <button
@@ -108,13 +109,6 @@ const Dashboard = () => {
           >
             🤝 Connections
           </button>
-
-          {/* <button
-            onClick={() => handleSidebarNavigate("/chat")}
-            className="sidebar-link"
-          >
-            💬 Chat
-          </button> */}
 
           <button
             onClick={() => navigate("/chatpage")}

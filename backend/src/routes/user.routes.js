@@ -1,7 +1,7 @@
 import {Router} from "express";
 import { loginuser, registeruser,logoutuser,generatenewaccesstoken, profileuser, updateprofile,getcurrentuser, getcurrentuserbyid } from "../controllers/user.controllers.js";
-import { sendConnectionRequest, givependingrequest, reviewConnectionRequest, discoverusers, blockuser, unblockuser, matchingalgorithm} from "../controllers/connections.controllers.js";  
-import { sendmessage, getmessages, markasread } from "../controllers/chat.controller.js";
+import { sendConnectionRequest, givependingrequest, reviewConnectionRequest, discoverusers, blockuser, unblockuser, matchingalgorithm, myconnections} from "../controllers/connections.controllers.js";  
+import { sendmessage, getmessages, markasread, createchatroom } from "../controllers/chat.controller.js";
 import {upload} from "../middlewares/multer.js"
 import { verifyJWT } from "../middlewares/auth.js";
 
@@ -30,6 +30,8 @@ router.route("/checkprofilecomplete").get(verifyJWT, getcurrentuser);//
 
 router.route("/discover").get(verifyJWT, discoverusers);//to discover all otehr users for matching and sending connection request
 
+router.route("/myconnections").get(verifyJWT, myconnections); //for showing all accepted connections
+
 router.route("/block/:blockedUserId").post(verifyJWT, blockuser);//for blocking the other user which in we don't interest to connect
 
 router.route("/unblock/:blockedUserId").post(verifyJWT, unblockuser);//for unblock that user which we bloacked
@@ -41,5 +43,7 @@ router.route("/sendmessage/:receiver_id").post(verifyJWT,sendmessage);//for send
 router.route("/getmessages/:receiver_id").get(verifyJWT,getmessages);//get all message of that chatroom between two user and also we can give that chatroom id in future if we want to implement group chat also
 
 router.route("/toseen/:chatroom_id").post(verifyJWT,markasread);//for marking the message as read
+
+router.route("/createchatroom/:receiver_id").post(verifyJWT, createchatroom);//for creating chatroom if not exist
 
 export default router;

@@ -197,3 +197,36 @@ export const markasread = asynchandler(async (req, res) => {
     new Apiresponse(200, result, "messages marked as read")
   );
 });
+
+export const createchatroom = asynchandler(async (req, res) => {
+  const sender_id = req.user._id;
+  const { receiver_id } = req.params;
+
+  // here we are checking connection exists or not
+  const connectionpresent = await Connection.findOne({
+    $or: [
+      { requester: sender_id, recipient: receiver_id, status: "accepted" },
+      { recipient: sender_id, requester: receiver_id, status: "accepted" }
+    ]
+  });
+
+  if (!connectionpresent) {
+    return res.status(400).json(
+      new Apiresponse(400, null, "You are not connected")
+    );
+  }
+
+  let room = await Chatroom.findOne({
+    participants: { $all: [sender_id, receiver_id] }
+  });
+
+  if (!room) {
+    room = await Chatroom.create({
+      participants: [sender_id, receiver_id]
+    });
+  }
+
+  return res.status(200).json(
+    new Apiresponse(200, { chatroom_id: room._id }, "chatroom created successfully")
+  );
+});

@@ -9,6 +9,8 @@ import Matches from "./pages/matches";
 import ProfileSetup from "./pages/profilesetup";
 import ProfileView from "./pages/profileview";
 import ChatPage from "./pages/chatpage";
+import ConnectionsPage from "./pages/connectionpage";
+import PendingRequestsPage from "./pages/pendingrequest";
 
 const App = () => {
   return (
@@ -22,6 +24,8 @@ const App = () => {
         <Route path="/profile-setup" element={<ProfileSetup />} />
         <Route path="/profile/:id" element={<ProfileView />} />
         <Route path="/chatpage" element={<ChatPage />} />
+        <Route path="/connections" element={<ConnectionsPage />} />
+        <Route path="/pending-requests" element={<PendingRequestsPage />} />
       </Routes>
     </Router>
   );

@@ -8,6 +8,7 @@ import Dashboard from "./pages/dashboard";
 import Matches from "./pages/matches";
 import ProfileSetup from "./pages/profilesetup";
 import ProfileView from "./pages/profileview";
+import ChatPage from "./pages/chatpage";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/matches" element={<Matches />} />
         <Route path="/profile-setup" element={<ProfileSetup />} />
         <Route path="/profile/:id" element={<ProfileView />} />
+        <Route path="/chatpage" element={<ChatPage />} />
       </Routes>
     </Router>
   );

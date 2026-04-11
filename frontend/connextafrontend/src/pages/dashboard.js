@@ -109,8 +109,15 @@ const Dashboard = () => {
             🤝 Connections
           </button>
 
-          <button
+          {/* <button
             onClick={() => handleSidebarNavigate("/chat")}
+            className="sidebar-link"
+          >
+            💬 Chat
+          </button> */}
+
+          <button
+            onClick={() => navigate("/chatpage")}
             className="sidebar-link"
           >
             💬 Chat

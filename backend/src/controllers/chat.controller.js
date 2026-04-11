@@ -41,7 +41,7 @@ export const sendmessage = asynchandler(async (req, res) => {
       participants: [sender_id, receiver_id]
     });
   }
-  
+
   const newmessage = await Message.create({
     chatroom_id: room._id,
     sender_id,
@@ -49,9 +49,9 @@ export const sendmessage = asynchandler(async (req, res) => {
     message
   });
 
-  // here we add redis cache for messages and we are caching only last 50 messages for each chatroom and 
-  // we are also setting an expiry time of 10 minutes for each chatroom messages in redis so that if there is no activity in that chatroom for 10 minutes then those messages will be removed from redis cache and 
-  // also when we send a new message to that chatroom then we will update the cache with that new message and also reset the expiry time for that chatroom messages in redis so that those messages will be available in cache for next 10 minutes from the time of last message sent in that chatroom and 
+  // here we add redis cache for messages and we are caching only last 50 messages for each chatroom and
+  // we are also setting an expiry time of 10 minutes for each chatroom messages in redis so that if there is no activity in that chatroom for 10 minutes then those messages will be removed from redis cache and
+  // also when we send a new message to that chatroom then we will update the cache with that new message and also reset the expiry time for that chatroom messages in redis so that those messages will be available in cache for next 10 minutes from the time of last message sent in that chatroom and
   // also when we fetch messages for that chatroom then we will first check in redis cache if messages are present in cache then we will return those messages otherwise we will fetch from mongodb and also cache those messages in redis for future use
   await cacheMessage(room._id.toString(), {
     sender_id,
@@ -62,7 +62,6 @@ export const sendmessage = asynchandler(async (req, res) => {
 
   // socket
   const io = getIO();
-
   io.to(room._id.toString()).emit("receive_message", {
     chatroom_id: room._id,
     sender_id,
@@ -74,8 +73,6 @@ export const sendmessage = asynchandler(async (req, res) => {
     new Apiresponse(201, newmessage, "message sent successfully")
   );
 });
-
-
 
 export const getmessages = asynchandler(async (req, res) => {
   const current_user = req.user._id;
@@ -91,30 +88,47 @@ export const getmessages = asynchandler(async (req, res) => {
       new Apiresponse(200, [], "no messages found")
     );
   }
+
   const chatroomId = room._id.toString();
 
-  //here we first check if cursor is present or not if not then we will check in redis cache 
-  // if messages are present in cache then we will return those messages otherwise we will fetch from mongodb and 
+  //here we first check if cursor is present or not if not then we will check in redis cache
+  // if messages are present in cache then we will return those messages otherwise we will fetch from mongodb and
   // also cache those messages in redis for future use
+
+  // If cursor is not present means first time user is opening chat, so first check redis
+  // If redis has messages return them, but we must also check in DB if older messages exist or not
+  // because redis stores only last 50 messages so we need hasMore flag to tell frontend if more messages exist
   if (!cursor) {
     const cached = await getCachedMessages(chatroomId);
 
     if (cached.length > 0) {
+      // cursor should always be the oldest message time currently loaded
+      const oldestMessageTime = cached[0]?.created_at || null;
+
+      // check if older messages exist in DB
+      const olderExists = await Message.exists({
+        chatroom_id: room._id,
+        created_at: { $lt: new Date(oldestMessageTime) }
+      });
+
       return res.status(200).json(
-        new Apiresponse(200, {
-          messages: cached,
-          nextCursor: cached[0]?.created_at || null,
-          hasMore: true
-        }, "messages from redis")
+        new Apiresponse(
+          200,
+          {
+            messages: cached,
+            nextCursor: oldestMessageTime,
+            hasMore: !!olderExists
+          },
+          "messages from redis"
+        )
       );
     }
   }
 
-  //  here we implement pagination using cursor based pagination and we will fetch messages from mongodb and 
+  // here we implement pagination using cursor based pagination and we will fetch messages from mongodb and
   // also cache those messages in redis for future use and also we are sorting messages in descending order of created_at and then we are reversing the messages array before sending to client because we want to send messages in ascending order of created_at
-  const query = {
-    chatroom_id: room._id
-  };
+
+  const query = { chatroom_id: room._id };
 
   if (cursor) {
     query.created_at = { $lt: new Date(cursor) };
@@ -125,44 +139,61 @@ export const getmessages = asynchandler(async (req, res) => {
     .limit(50)
     .select("sender_id message created_at read");
 
-  if (!cursor) {
-    await Promise.all(
-      messages.map((msg) => cacheMessage(chatroomId, msg))
-    );
+  
+  // only cache messages if this is first page load (no cursor)
+  // because redis stores only recent messages not old pages
+  if (!cursor && messages.length > 0) {
+    await Promise.all(messages.map((msg) => cacheMessage(chatroomId, msg)));
   }
+
+  // reverse because we fetched DESC order but UI needs ASC order
+  const reversedMessages = messages.reverse();
+
+  // cursor should be oldest message time
+  const oldest = reversedMessages.length ? reversedMessages[0].created_at : null;
+
+
+  // we should check if older messages exist in DB
+  const olderExists = oldest
+    ? await Message.exists({
+        chatroom_id: room._id,
+        created_at: { $lt: new Date(oldest) }
+      })
+    : false;
+
   return res.status(200).json(
-    new Apiresponse(200, {
-      messages: messages.reverse(),
-      nextCursor: messages.length ? messages[messages.length - 1].created_at : null,
-      hasMore: messages.length === 50
-    }, "messages from db")
+    new Apiresponse(
+      200,
+      {
+        messages: reversedMessages,
+        nextCursor: oldest,
+        hasMore: !!olderExists
+      },
+      "messages from db"
+    )
   );
 });
 
-
-
 export const markasread = asynchandler(async (req, res) => {
-    const user_id = req.user._id;
-    const { chatroom_id } = req.params;
-    const result = await Message.updateMany(
-        {
-            chatroom_id,
-            receiver_id: user_id,
-            read: false
-        },
-        {
-            $set: { read: true }
-        }
-    );
-    const redis = (await import("../config/redis.js")).default;
-    await redis.del(`chat:${chatroom_id}`);
-    const io = getIO();
-    io.to(chatroom_id.toString()).emit("messages_read", {
-        chatroom_id,
-        reader_id: user_id
-    });
+  const user_id = req.user._id;
+  const { chatroom_id } = req.params;
 
-    return res.status(200).json(
-        new Apiresponse(200, result, "messages marked as read")
-    );
+  const result = await Message.updateMany(
+    { chatroom_id, receiver_id: user_id, read: false },
+    { $set: { read: true } }
+  );
+
+  const redis = (await import("../config/redis.js")).default;
+
+  await redis.del(`chat:${chatroom_id}`);
+
+  const io = getIO();
+  io.to(chatroom_id.toString()).emit("messages_read", {
+    chatroom_id,
+    reader_id: user_id
+  });
+
+  return res.status(200).json(
+    new Apiresponse(200, result, "messages marked as read")
+  );
 });

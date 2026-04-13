@@ -1,36 +1,18 @@
-const baseurl = "http://localhost:8000/users";
+
+
+import {axiosInstance} from "./axiosinstance";
 
 export const registeruser = async (formdata) => {
-  const res = await fetch(`${baseurl}/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    credentials: "include",
-    body: JSON.stringify(formdata)
-  });
-
-  return res.json();
+  const res = await axiosInstance.post("http://localhost:8000/users/register", formdata);
+  return res.data;
 };
 
 export const loginuser = async (formdata) => {
-  const res = await fetch(`${baseurl}/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    credentials: "include",
-    body: JSON.stringify(formdata)
-  });
-
-  return res.json();
+  const res = await axiosInstance.post("http://localhost:8000/users/login", formdata);
+  return res.data;
 };
 
 export const logoutuser = async () => {
-  const res = await fetch(`${baseurl}/logout`, {
-    method: "POST",
-    credentials: "include"
-  });
-
-  return res.json();
+  const res = await axiosInstance.post("http://localhost:8000/users/logout");
+  return res.data;
 };

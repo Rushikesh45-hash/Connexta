@@ -1,6 +1,6 @@
 import {Router} from "express";
 import { loginuser, registeruser,logoutuser,generatenewaccesstoken, profileuser, updateprofile,getcurrentuser, getcurrentuserbyid } from "../controllers/user.controllers.js";
-import { sendConnectionRequest, givependingrequest, reviewConnectionRequest, discoverusers, blockuser, unblockuser, matchingalgorithm, myconnections} from "../controllers/connections.controllers.js";  
+import { sendConnectionRequest, givependingrequest, reviewConnectionRequest, discoverusers, blockuser, unblockuser, getblockedusers, matchingalgorithm, myconnections} from "../controllers/connections.controllers.js";  
 import { sendmessage, getmessages, markasread, createchatroom } from "../controllers/chat.controller.js";
 import {upload} from "../middlewares/multer.js"
 import { verifyJWT } from "../middlewares/auth.js";
@@ -26,7 +26,7 @@ router.route("/profile").put(verifyJWT,upload.single("avatar"),profileuser);//cr
 
 router.route("/user/:id").get(verifyJWT, getcurrentuserbyid);//for getting our profile to show in profile view page
 
-router.route("/checkprofilecomplete").get(verifyJWT, getcurrentuser);//
+router.route("/checkprofilecomplete").get(verifyJWT, getcurrentuser);//to check profile complete or not
 
 router.route("/discover").get(verifyJWT, discoverusers);//to discover all otehr users for matching and sending connection request
 
@@ -35,6 +35,8 @@ router.route("/myconnections").get(verifyJWT, myconnections); //for showing all 
 router.route("/block/:blockedUserId").post(verifyJWT, blockuser);//for blocking the other user which in we don't interest to connect
 
 router.route("/unblock/:blockedUserId").post(verifyJWT, unblockuser);//for unblock that user which we bloacked
+
+router.route("/blockedusers").get(verifyJWT, getblockedusers); //for showing all blocked users
 
 router.route("/matching").get(verifyJWT, matchingalgorithm);//for discover matching algorithm and give best matching alog with matching score
 

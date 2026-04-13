@@ -2,50 +2,242 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #f4f7ff, #eef2ff);
   padding: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.profile-loading,
+.profile-notfound {
+  margin-top: 100px;
+  text-align: center;
+  color: #333;
 }
 
 .profile-card {
-  max-width: 750px;
-  margin: auto;
-  background: rgba(255, 255, 255, 0.85);
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 950px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 30px;
+  border-radius: 22px;
+  box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
 }
 
+/* Header Section */
 .profile-header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  gap: 25px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 20px;
+}
+
+.profile-left {
+  display: flex;
   align-items: center;
-}
-
-.profile-header h2 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.profile-sub {
-  margin-top: 5px;
-  font-size: 14px;
-  color: #555;
+  gap: 18px;
 }
 
 .profile-avatar {
-  width: 90px;
-  height: 90px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid #4f46e5;
 }
 
-.profile-details {
-  margin-top: 20px;
+.profile-basic h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: bold;
+  color: #111;
 }
 
-.profile-details p {
+.profile-age {
+  font-size: 18px;
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.profile-sub {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #555;
+}
+
+.profile-location {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #444;
+}
+
+/* Badges */
+.profile-badges {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.badge {
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 14px;
+}
+
+/* Action Buttons */
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-primary {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 14px;
+  background: #4f46e5;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-primary:hover {
+  background: #4338ca;
+}
+
+.btn-secondary {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 14px;
+  background: #e0e7ff;
+  color: #1e3a8a;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-secondary:hover {
+  background: #c7d2fe;
+}
+
+.btn-danger {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 14px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-danger:hover {
+  background: #fecaca;
+}
+
+/* Section */
+.profile-section {
+  margin-top: 25px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 12px;
+}
+
+/* Bio */
+.profile-bio {
   font-size: 15px;
   color: #333;
-  margin-bottom: 12px;
-  line-height: 1.6;
+  line-height: 1.7;
+  background: #f9fafb;
+  padding: 15px;
+  border-radius: 14px;
 }
+
+/* Grid */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.profile-item {
+  background: #f9fafb;
+  padding: 14px 16px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+}
+
+/* Hobbies */
+.hobby-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hobby-tag {
+  background: #4f46e5;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 18px;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-actions {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    flex: 1;
+    min-width: 140px;
+  }
+}
+
+
+
+/* profileview.css update this and give me complete updated code with my comments also */

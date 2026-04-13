@@ -10,6 +10,9 @@ import ProfileSetup from "./pages/profilesetup";
 import ProfileView from "./pages/profileview";
 import ChatPage from "./pages/chatpage";
 import ConnectionsPage from "./pages/connectionpage";
+import AllProfilesPage from "./pages/allprofilepage";
+import BlockedUsersPage from "./pages/blockeduser";
+// import SettingsPage from "./pages/settings";
 import PendingRequestsPage from "./pages/pendingrequest";
 
 const App = () => {
@@ -26,6 +29,9 @@ const App = () => {
         <Route path="/chatpage" element={<ChatPage />} />
         <Route path="/connections" element={<ConnectionsPage />} />
         <Route path="/pending-requests" element={<PendingRequestsPage />} />
+        <Route path="/all-profiles" element={<AllProfilesPage />} />
+        <Route path="/blocked-users" element={<BlockedUsersPage />} />
+        {/* <Route path="/settings" element={<SettingsPage />} /> */}
       </Routes>
     </Router>
   );

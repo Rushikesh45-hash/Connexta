@@ -1,0 +1,37 @@
+.allprofiles-container {
+  min-height: 100vh;
+  padding: 30px;
+  background: linear-gradient(135deg, #f4f7ff, #eef2ff);
+}
+
+.allprofiles-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.allprofiles-header h2 {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1e3a8a;
+}
+
+.allprofiles-header p {
+  font-size: 14px;
+  color: #444;
+}
+
+.allprofiles-empty {
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 18px;
+  max-width: 600px;
+  margin: auto;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.allprofiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+}

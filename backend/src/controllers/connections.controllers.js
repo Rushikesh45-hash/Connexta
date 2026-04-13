@@ -96,6 +96,7 @@ export const discoverusers = asynchandler(async (req, res) => {
             { recipient: currentUserId }
         ]
     });
+    console.log("Connections involving current user:", connections);
     const excludedUsers = new Set();
 
     connections.forEach(conn => {
@@ -106,6 +107,7 @@ export const discoverusers = asynchandler(async (req, res) => {
         excludedUsers.add(otherUser.toString());
     });
     excludedUsers.add(currentUserId.toString());
+    console.log("Excluded user IDs:", Array.from(excludedUsers));
 
     const users = await user.find({
         _id: { $nin: Array.from(excludedUsers) }
@@ -151,6 +153,20 @@ export const unblockuser = asynchandler(async (req, res) => {
     }
     await Block.deleteOne({ _id: block._id });
     return res.status(200).json(new Apiresponse(200, null, "User unblocked successfully"));
+});
+
+// GET all blocked users list
+export const getblockedusers = asynchandler(async (req, res) => {
+    const currentUser = req.user._id;
+
+    // find all blocked users by current user
+    const blockedUsers = await Block.find({ blockerId: currentUser })
+        .populate("blockedId", "-password -refreshToken");
+
+    // blockedId will contain full user profile data
+    return res.status(200).json(
+        new Apiresponse(200, blockedUsers, "Blocked users fetched successfully")
+    );
 });
 
 const unwantedwords = ["the", "is", "in", "and", "or", "of", "to", "a", "with", "for", "on", "by", "as", "at", "from"];
@@ -275,7 +291,7 @@ export const matchingalgorithm = asynchandler(async(req,res)=>{
             : c.requester.toString()
     );
 
-    // FIX: exclude currentuserid directly
+    //  exclude currentuserid directly
     const candidates = await user.find({
         _id: { $nin: [...allblockuserids, ...connectedOrpendingids, currentuserid] }
     });

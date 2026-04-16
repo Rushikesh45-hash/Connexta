@@ -31,12 +31,9 @@ const Landing = () => {
         </div>
       </section>
 
-      <div className="info-bar">
-        <span>#1 Matchmaking Service</span>
-        <span>⭐ ⭐ ⭐ ⭐ ⭐ Ratings by 2.4 lakh users</span>
-        <span>80 Lakh Success Stories</span>
-      </div>
-
+<footer className="landing-footer">
+  <p>&copy; 2026 Connexta. Built with ❤️ for meaningful connections.</p>
+</footer>
       <footer className="landing-footer">
         <p>&copy; 2026 Connexta. All rights reserved.</p>
       </footer>

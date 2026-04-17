@@ -13,7 +13,6 @@ const PrivateLayout = ({ children }) => {
     navigate(path);
   };
 
-  // My Profile redirect using backend current user id
   const handleMyProfile = async () => {
     try {
       const data = await getCurrentUser();
@@ -32,9 +31,10 @@ const PrivateLayout = ({ children }) => {
 
   return (
     <div className="private-layout">
-      <Navbar />
+      {/* Navbar with Hamburger */}
+      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-      {/* Sidebar Overlay */}
+      {/* Overlay */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "show" : ""}`}
         onClick={() => setSidebarOpen(false)}
@@ -86,13 +86,6 @@ const PrivateLayout = ({ children }) => {
           🤝 Connections
         </button>
 
-        <button
-          onClick={() => handleSidebarNavigate("/chatpage")}
-          className="sidebar-link"
-        >
-          💬 Chat
-        </button>
-
         <button onClick={handleMyProfile} className="sidebar-link">
           👤 My Profile
         </button>
@@ -106,21 +99,7 @@ const PrivateLayout = ({ children }) => {
       </div>
 
       {/* Main Content */}
-      <div className="private-content">
-        {/* Top bar hamburger */}
-        <div className="layout-topbar">
-          <button
-            className="hamburger-btn"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            <div className="hamburger-line"></div>
-            <div className="hamburger-line"></div>
-            <div className="hamburger-line"></div>
-          </button>
-        </div>
-
-        {children}
-      </div>
+      <div className="private-content">{children}</div>
     </div>
   );
 };

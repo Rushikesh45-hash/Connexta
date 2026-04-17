@@ -1,8 +1,8 @@
-.sidebar {
+/* .sidebar {
   width: 230px;
   height: 100vh;
   background: #111827;
-  color: white;
+  color: rgb(243, 243, 244);
   padding: 20px;
   position: fixed;
   left: 0;
@@ -31,4 +31,4 @@
 
 .sidebar-link:hover {
   background: #1f2937;
-}
+} */

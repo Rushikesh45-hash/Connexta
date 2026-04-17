@@ -56,7 +56,6 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Quick Stats */}
         <div className="dashboard-stats">
           <div className="stat-card">
             <h4>Total Matches</h4>

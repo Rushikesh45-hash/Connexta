@@ -94,8 +94,3 @@
 .dropdown-btn:hover {
   background: #f1f1f1;
 }
-
-.dropdown-btn.logout {
-  /* color: red; */
-  font-weight: bold;
-}

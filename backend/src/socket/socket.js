@@ -10,7 +10,7 @@ const userSocketMap = new Map();
 export const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "*", 
+      origin: "*",
     },
   });
   //here we are just initializing the socket server and we are just allowing all the origins to connect to our socket server and then we are just listening to the connection event and when a user connects to our socket server then we are just logging the user id and then we are just storing the user id and socket id in a map so that we can use that map to send or recieve data instantly without refreshing the page and then we are just listening to the join_room event and when a user joins a room then we are just adding that user to that room and then we are just logging the room id and 
@@ -25,6 +25,14 @@ export const initSocket = (server) => {
 
     if (userId) {
       userSocketMap.set(userId, socket.id);
+
+      // whenever a user comes online we broadcast it to all users
+      io.emit("user_status", {
+        userId,
+        status: "online",
+      });
+
+      console.log(`User ${userId} is Online`);
     }
 
     socket.on("join_room", (chatroomId) => {
@@ -37,14 +45,26 @@ export const initSocket = (server) => {
       console.log(`User left room: ${chatroomId}`);
     });
 
-
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);
 
+      let disconnectedUserId = null;
+
       for (let [key, value] of userSocketMap.entries()) {
         if (value === socket.id) {
+          disconnectedUserId = key;
           userSocketMap.delete(key);
         }
+      }
+
+      // whenever a user goes offline we broadcast it to all users
+      if (disconnectedUserId) {
+        io.emit("user_status", {
+          userId: disconnectedUserId,
+          status: "offline",
+        });
+
+        console.log(`User ${disconnectedUserId} is Offline`);
       }
     });
   });
@@ -59,10 +79,6 @@ export const getIO = () => {
 
 //means this socket is just used to send or recieve data instantly without refreshing the page and this is just used for chat application because in chat application we need to send or recieve data instantly without refreshing the page 
 // and for that we use socket and we can use that socket in our controller to send or recieve data instantly without refreshing the page.
-
-
-
-
 
 
 

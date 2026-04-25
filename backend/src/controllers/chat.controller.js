@@ -27,9 +27,7 @@ export const sendmessage = asynchandler(async (req, res) => {
   });
 
   if (!connectionpresent) {
-    return res.status(400).json(
-      new Apiresponse(400, null, "You are not connected")
-    );
+    return res.status(400).json(new Apiresponse(400, null, "You are not connected"));
   }
 
   let room = await Chatroom.findOne({
@@ -49,27 +47,26 @@ export const sendmessage = asynchandler(async (req, res) => {
     message
   });
 
-  // here we add redis cache for messages and we are caching only last 50 messages for each chatroom and
-  // we are also setting an expiry time of 10 minutes for each chatroom messages in redis so that if there is no activity in that chatroom for 10 minutes then those messages will be removed from redis cache and
-  // also when we send a new message to that chatroom then we will update the cache with that new message and also reset the expiry time for that chatroom messages in redis so that those messages will be available in cache for next 10 minutes from the time of last message sent in that chatroom and
-  // also when we fetch messages for that chatroom then we will first check in redis cache if messages are present in cache then we will return those messages otherwise we will fetch from mongodb and also cache those messages in redis for future use
-
+  // cache message in redis (last 50)
   await cacheMessage(room._id.toString(), {
     _id: newmessage._id,
     sender_id: newmessage.sender_id,
+    receiver_id: newmessage.receiver_id,
     message: newmessage.message,
     createdAt: newmessage.createdAt,
     read: newmessage.read
   });
 
-  // socket
+  // socket emit
   const io = getIO();
   io.to(room._id.toString()).emit("receive_message", {
     chatroom_id: room._id,
     _id: newmessage._id,
     sender_id: newmessage.sender_id,
+    receiver_id: newmessage.receiver_id,
     message: newmessage.message,
-    createdAt: newmessage.createdAt
+    createdAt: newmessage.createdAt,
+    read: newmessage.read
   });
 
   return res.status(201).json(
@@ -85,7 +82,6 @@ export const getmessages = asynchandler(async (req, res) => {
   const room = await Chatroom.findOne({
     participants: { $all: [current_user, receiver_id] }
   });
-  console.log("Chatroom found:", room);
 
   if (!room) {
     return res.status(200).json(
@@ -95,19 +91,19 @@ export const getmessages = asynchandler(async (req, res) => {
 
   const chatroomId = room._id.toString();
 
-  // If cursor is not present means first time user is opening chat, so first check redis
+  // FIRST LOAD (NO CURSOR)
   if (!cursor) {
     const cached = await getCachedMessages(chatroomId);
 
     if (cached.length > 0) {
-      // cursor should always be the oldest message time currently loaded
-      const oldestMessageTime = cached[0]?.createdAt || null;
+      const oldestMessageTime = cached[0]?.createdAt;
 
-      // check if older messages exist in DB
-      const olderExists = await Message.exists({
-        chatroom_id: room._id,
-        createdAt: { $lt: new Date(oldestMessageTime) }
-      });
+      const olderExists = oldestMessageTime
+        ? await Message.exists({
+            chatroom_id: room._id,
+            createdAt: { $lt: new Date(oldestMessageTime) }
+          })
+        : false;
 
       return res.status(200).json(
         new Apiresponse(
@@ -121,31 +117,53 @@ export const getmessages = asynchandler(async (req, res) => {
         )
       );
     }
+
+    // Redis empty → DB fetch once
+    const messages = await Message.find({ chatroom_id: room._id })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .select("_id sender_id receiver_id message createdAt read");
+
+    // cache them
+    for (let msg of messages) {
+      await cacheMessage(chatroomId, msg);
+    }
+
+    const reversed = messages.reverse();
+    const oldest = reversed.length ? reversed[0].createdAt : null;
+
+    const olderExists = oldest
+      ? await Message.exists({
+          chatroom_id: room._id,
+          createdAt: { $lt: new Date(oldest) }
+        })
+      : false;
+
+    return res.status(200).json(
+      new Apiresponse(
+        200,
+        {
+          messages: reversed,
+          nextCursor: oldest,
+          hasMore: !!olderExists
+        },
+        "messages from db"
+      )
+    );
   }
 
-  const query = { chatroom_id: room._id };
-
-  if (cursor) {
-    query.createdAt = { $lt: new Date(cursor) };
-  }
-
-  const messages = await Message.find(query)
+  // PAGINATION (CURSOR EXISTS)
+  const messages = await Message.find({
+    chatroom_id: room._id,
+    createdAt: { $lt: new Date(cursor) }
+  })
     .sort({ createdAt: -1 })
     .limit(50)
-    .select("_id sender_id message createdAt read");
+    .select("_id sender_id receiver_id message createdAt read");
 
-  // only cache messages if this is first page load (no cursor)
-  if (!cursor && messages.length > 0) {
-    await Promise.all(messages.map((msg) => cacheMessage(chatroomId, msg)));
-  }
+  const reversed = messages.reverse();
+  const oldest = reversed.length ? reversed[0].createdAt : null;
 
-  // reverse because we fetched DESC order but UI needs ASC order
-  const reversedMessages = messages.reverse();
-
-  // cursor should be oldest message time
-  const oldest = reversedMessages.length ? reversedMessages[0].createdAt : null;
-
-  // check if older messages exist in DB
   const olderExists = oldest
     ? await Message.exists({
         chatroom_id: room._id,
@@ -157,11 +175,11 @@ export const getmessages = asynchandler(async (req, res) => {
     new Apiresponse(
       200,
       {
-        messages: reversedMessages,
+        messages: reversed,
         nextCursor: oldest,
         hasMore: !!olderExists
       },
-      "messages from db"
+      "older messages from db"
     )
   );
 });
@@ -175,8 +193,7 @@ export const markasread = asynchandler(async (req, res) => {
     { $set: { read: true } }
   );
 
-  const redis = (await import("../config/redis.js")).default;
-  await redis.del(`chat:${chatroom_id}`);
+  // ❌ DO NOT DELETE REDIS CACHE HERE
 
   const io = getIO();
   io.to(chatroom_id.toString()).emit("messages_read", {
@@ -193,27 +210,21 @@ export const createchatroom = asynchandler(async (req, res) => {
   const sender_id = req.user._id;
   const { receiver_id } = req.params;
 
-  // here we are checking connection exists or not
   const connectionpresent = await Connection.findOne({
     $or: [
       { requester: sender_id, recipient: receiver_id, status: "accepted" },
       { recipient: sender_id, requester: receiver_id, status: "accepted" }
     ]
   });
-  console.log("Sender:", sender_id.toString());
-console.log("Receiver:", receiver_id.toString());
-  console.log("Connection present:", connectionpresent);
 
   if (!connectionpresent) {
-    return res.status(400).json(
-      new Apiresponse(400, null, "You are not connected")
-    );
+    return res.status(400).json(new Apiresponse(400, null, "You are not connected"));
   }
 
   let room = await Chatroom.findOne({
     participants: { $all: [sender_id, receiver_id] }
   });
-console.log("Chatroom found:", room);
+
   if (!room) {
     room = await Chatroom.create({
       participants: [sender_id, receiver_id]
